@@ -11,7 +11,7 @@ class Url(Base):
     url = Column(String, nullable=False)
     xpath = Column(String, nullable=False)
     interval = Column(Interval, nullable=False)
-    data = relationship('ParseData')
+    data = relationship('ParseData', cascade="all,delete")
 
 
 class ParseData(Base):
