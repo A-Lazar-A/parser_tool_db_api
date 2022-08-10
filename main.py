@@ -5,8 +5,9 @@ from database import engine, get_db
 from schemas import *
 import uvicorn
 import crud
-import os
 from apscheduler.schedulers.background import BackgroundScheduler
+from parser import parse_xpath
+
 
 model.Base.metadata.create_all(bind=engine)
 
@@ -15,14 +16,9 @@ scheduler = BackgroundScheduler()
 
 
 def scheduler_start(sec, url, xpath, url_id):
-    # setting the scheduled task
-    scheduler.add_job(job, 'interval', args=(url, xpath, url_id), seconds=sec)
-
-    # starting the scheduled task using the scheduler object
-
-
-def job(url, xpath, url_id):
-    os.system(f'python3 parser.py {url} {xpath} {url_id}')
+    scheduler.pause()
+    scheduler.add_job(parse_xpath, 'interval', args=(url, xpath, url_id), seconds=sec)
+    scheduler.resume()
 
 
 @app.get("/")
@@ -48,12 +44,12 @@ def create(details: CreateUrl, db: Session = Depends(get_db)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
     scheduler.start()
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
     try:
-        # To simulate application activity (which keeps the main thread alive).
         while True:
             continue
     except (KeyboardInterrupt, SystemExit):
-        # Not strictly necessary but recommended
+
         scheduler.shutdown()
