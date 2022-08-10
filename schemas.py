@@ -1,21 +1,37 @@
-from pydantic import BaseModel, Field
-from datetime import timedelta, datetime
+from pydantic import BaseModel
+from datetime import datetime
+from typing import List
 
 
-class DataSchema(BaseModel):
+class DataBase(BaseModel):
     data: str
-    date: datetime
+    url_id: int
 
 
-class UrlSchema(BaseModel):
+class CreateData(DataBase):
+    pass
+
+
+class DataRead(DataBase):
     id: int
-    url: str
-    xpath: str
-    interval: timedelta
-    data: DataSchema = Field(...)
+    date: datetime
+    class Config:
+        orm_mode = True
 
 
-class CreateUrlSchema(BaseModel):
+class UrlBase(BaseModel):
     url: str
     xpath: str
-    interval: timedelta
+    interval: int
+
+
+class CreateUrl(UrlBase):
+    pass
+
+
+class UrlRead(UrlBase):
+    id: int
+    data_list: list[DataRead] = []
+
+    class Config:
+        orm_mode = True
