@@ -15,6 +15,7 @@ class CreateData(DataBase):
 class DataRead(DataBase):
     id: int
     date: datetime
+
     class Config:
         orm_mode = True
 
