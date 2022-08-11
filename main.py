@@ -8,7 +8,6 @@ import crud
 from apscheduler.schedulers.background import BackgroundScheduler
 from parser import parse_xpath
 
-
 model.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -17,7 +16,7 @@ scheduler = BackgroundScheduler()
 
 def scheduler_start(sec, url, xpath, url_id):
     scheduler.pause()
-    scheduler.add_job(parse_xpath, 'interval', args=(url, xpath, url_id), seconds=sec)
+    scheduler.add_job(parse_xpath, 'interval', args=(url, xpath, url_id), seconds=sec, id=str(url_id))
     scheduler.resume()
 
 
@@ -41,6 +40,15 @@ def create(details: CreateUrl, db: Session = Depends(get_db)):
     url = crud.add_url(db, details)
     scheduler_start(details.interval, details.url, details.xpath, url.id)
     return url
+
+
+@app.delete("/delete/{id}")
+def delete(id: int, db: Session = Depends(get_db)):
+    scheduler.pause()
+    scheduler.remove_job(str(id))
+    scheduler.resume()
+    crud.remove_url(db, id)
+    return {"success": True}
 
 
 if __name__ == "__main__":
