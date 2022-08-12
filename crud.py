@@ -20,6 +20,12 @@ def add_url(db: Session, url_input: schemas.CreateUrl):
     return db_url
 
 
+def remove_url(db: Session, id: int):
+    _url = db.query(model.Url).filter(model.Url.id == id).first()
+    db.delete(_url)
+    db.commit()
+
+
 def add_url_data(db: Session, data_input: schemas.CreateData):
     db_data = model.ParseData(
         data=data_input.data,
