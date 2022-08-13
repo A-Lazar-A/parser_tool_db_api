@@ -52,12 +52,10 @@ def delete(id: int, db: Session = Depends(get_db)):
 
 
 if __name__ == "__main__":
-    scheduler.start()
-    uvicorn.run(app, host="127.0.0.1", port=8000)
 
     try:
-        while True:
-            continue
+        scheduler.start()
+        uvicorn.run(app, host="127.0.0.1", port=8000)
     except (KeyboardInterrupt, SystemExit):
 
         scheduler.shutdown()
