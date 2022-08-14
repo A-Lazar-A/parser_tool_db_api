@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-import model
-import schemas
+from app import model
+from app import schemas
 from datetime import datetime
 
 

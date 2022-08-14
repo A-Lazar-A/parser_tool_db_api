@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-import model
-from database import engine, get_db
-from schemas import *
+from app import model
+from app.database import engine, get_db
+from app.schemas import *
 import uvicorn
-import crud
+from app import crud
 from apscheduler.schedulers.background import BackgroundScheduler
-from parser import parse_xpath
+from app.parser import parse_xpath
 
 model.Base.metadata.create_all(bind=engine)
 
