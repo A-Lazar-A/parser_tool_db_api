@@ -3,15 +3,16 @@ version: '3.8'
 services:
   web:
     build: .
-    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn app.main:app --host 0.0.0.0'
+    command: python3 app/main.py
     volumes:
       - .:/app
     ports:
       - 8008:8000
     environment:
-      - DATABASE_URL=postgresql://parser_user:parser_pass@db:5432/parser_db
+      - DATABASE_URL=${DATABASE_URL}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:13-alpine
@@ -23,6 +24,11 @@ services:
       - POSTGRES_USER=parser_user
       - POSTGRES_PASSWORD=parser_pass
       - POSTGRES_DB=parser_db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres_data:
