@@ -1,12 +1,13 @@
+from apscheduler.jobstores.base import JobLookupError
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from app import model
-from app.database import engine, get_db
-from app.schemas import *
+import model
+import crud
+from database import engine, get_db
+from schemas import *
 import uvicorn
-from app import crud
 from apscheduler.schedulers.background import BackgroundScheduler
-from app.parser import parse_xpath
+from parser import parse_xpath
 
 model.Base.metadata.create_all(bind=engine)
 
@@ -45,7 +46,10 @@ def create(details: CreateUrl, db: Session = Depends(get_db)):
 @app.delete("/delete/{id}")
 def delete(id: int, db: Session = Depends(get_db)):
     scheduler.pause()
-    scheduler.remove_job(str(id))
+    try:
+        scheduler.remove_job(str(id))
+    except JobLookupError:
+        print('There is not any job with this id, try to delete data from db')
     scheduler.resume()
     crud.remove_url(db, id)
     return {"success": True}
@@ -55,7 +59,7 @@ if __name__ == "__main__":
 
     try:
         scheduler.start()
-        uvicorn.run(app, host="127.0.0.1", port=8000)
+        uvicorn.run(app, host="0.0.0.0", port=8000)
     except (KeyboardInterrupt, SystemExit):
 
         scheduler.shutdown()
